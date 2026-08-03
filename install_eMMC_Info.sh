@@ -10,6 +10,7 @@
 # 用法:
 #   sh install.sh
 
+
 set -eu
 
 EMMCINFO_BIN="/usr/bin/emmcinfo.sh"
@@ -19,6 +20,9 @@ LUCI_VIEW="/usr/lib/lua/luci/view/emmcinfo/status.htm"
 log() {
     echo "[install.sh] $*"
 }
+# 依赖安装
+opkg update
+opkg install wget mmc-utils hdparm coreutils-dd bash
 
 # 设备没有 eMMC 时直接终止，不执行后续任何安装动作
 has_emmc() {
