@@ -395,6 +395,7 @@ get_feed_package_field() {
 
     mkdir -p "$WORKDIR/feed-index"
     feed_idx="$WORKDIR/feed-index/${feed_name}.Packages.gz"
+    rm -f "$feed_idx"
     download_with_tool "$feed_url/Packages.gz" "$feed_idx" >/dev/null 2>&1 || return 1
 
     gzip -dc "$feed_idx" 2>/dev/null | awk -v pkg="$package_name" -v fld="$field_name" '
@@ -485,6 +486,7 @@ download_url_to_file_or_die() {
 
     [ -n "$url" ] || die "missing download url for $label"
     log "Logs: downloading $label..."
+    rm -f "$dest"
     download_with_tool "$url" "$dest"
     [ -s "$dest" ] || die "$label download failed"
 }
@@ -1028,6 +1030,10 @@ set_appcenter_entry() {
     if [ "$plugin_name" = "OpenClash" ]; then
         cleanup_extra_route="admin/services/openclash"
         cleanup_extra_route2="admin/services/openclash/client"
+    elif [ "$plugin_name" = "TTYD" ]; then
+        cleanup_extra_route="admin/services/ttyd/ttyd"
+    elif [ "$plugin_name" = "OpenList" ]; then
+        cleanup_extra_route="admin/services/openlist2/basic"
     fi
     cleanup_appcenter_route_entries "$route" "$cleanup_extra_route" "$cleanup_extra_route2"
 
@@ -1099,7 +1105,7 @@ verify_appcenter_route() {
 }
 
 verify_ttyd_route() {
-    verify_appcenter_route "TTYD" "admin/services/ttyd/ttyd"
+    verify_appcenter_route "TTYD" "admin/services/ttyd"
 }
 
 verify_kms_route() {
@@ -1674,7 +1680,7 @@ log_plugin_install_result() {
 ttyd_setup_install() {
     INSTALL_CTX_NAME="TTYD"
     INSTALL_CTX_PKG_NAME="luci-app-ttyd"
-    INSTALL_CTX_ROUTE="admin/services/ttyd/ttyd"
+    INSTALL_CTX_ROUTE="admin/services/ttyd"
     INSTALL_CTX_DESCRIPTION="本地调试利器"
     INSTALL_CTX_NEXT_HINT="close appcenter popup, then press Ctrl+F5 and reopen ttyd"
     INSTALL_CTX_WORKDIRS="$WORKDIR"
@@ -1897,7 +1903,7 @@ openclash_after_register() {
 openlist_setup_install() {
     INSTALL_CTX_NAME="OpenList"
     INSTALL_CTX_PKG_NAME="luci-app-openlist2"
-    INSTALL_CTX_ROUTE="admin/services/openlist2/basic"
+    INSTALL_CTX_ROUTE="admin/services/openlist2"
     INSTALL_CTX_DESCRIPTION="Alist:一个支持多种存储的文件列表程序"
     INSTALL_CTX_NEXT_HINT="close appcenter popup, then press Ctrl+F5 and reopen OpenList"
     INSTALL_CTX_WORKDIRS="$WORKDIR $WORKDIR/openlist"
