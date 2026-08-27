@@ -1,5 +1,3 @@
-#!/bin/sh
-
 set -eu
 
 # 脚本工作目录与运行时路径。
@@ -36,7 +34,7 @@ DOWNLOAD_CONNECT_TIMEOUT="${DOWNLOAD_CONNECT_TIMEOUT:-8}"
 DOWNLOAD_MAX_TIME="${DOWNLOAD_MAX_TIME:-1800}"
 DOWNLOAD_RETRIES="${DOWNLOAD_RETRIES:-2}"
 OPENCLASH_CORE_DOWNLOAD_MAX_TIME="${OPENCLASH_CORE_DOWNLOAD_MAX_TIME:-240}"
-INSTALL_OPENCLASH_SMART_CORE="${INSTALL_OPENCLASH_SMART_CORE:-0}"
+INSTALL_OPENCLASH_SMART_CORE="${INSTALL_OPENCLASH_SMART_CORE:-1}"
 MIRROR_PING_COUNT="${MIRROR_PING_COUNT:-2}"
 MIRROR_PING_TIMEOUT="${MIRROR_PING_TIMEOUT:-2}"
 
@@ -285,6 +283,7 @@ download_from_mirrors() {
     base_list="${3:-$OPENCLASH_MIRRORS}"
     validator="${4:-}"
     sort_mode="${5:-1}"
+    rm -f "$out"
     if [ "$sort_mode" = "0" ]; then
         sorted_list="$base_list"
     else
@@ -1328,21 +1327,46 @@ EOF
     cat > /usr/lib/lua/luci/view/openclash/nradio_tabs.htm <<'EOF'
 <%+header%>
 <style type="text/css">
+:root{color-scheme:dark;}
 .nradio-oc-wrap{display:flex;flex-direction:column;min-height:calc(100vh - 120px);}
-.nradio-oc-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid #ddd;}
-.nradio-oc-tab{display:inline-block;padding:7px 12px;border:1px solid #ccc;border-radius:4px;background:#f8f8f8;color:#333;text-decoration:none;cursor:pointer;}
-.nradio-oc-tab:hover,.nradio-oc-tab.active{background:#fff;color:#0088cc;border-color:#0088cc;text-decoration:none;}
-.nradio-oc-frame{display:block;width:100%;height:calc(100vh - 178px);min-height:620px;border:0;background:#fff;overflow:visible;}
-@media(max-width:768px){.nradio-oc-frame{height:calc(100vh - 210px);min-height:560px}.nradio-oc-tab{padding:6px 9px}}
+.nradio-oc-tabs{
+    position:sticky;top:0;z-index:20;
+    display:flex;flex-wrap:wrap;gap:6px;
+    margin:0 0 12px;padding:8px 0 10px;
+    background:#292932;border-bottom:1px solid #41414e;
+}
+.nradio-oc-tab{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:30px;padding:6px 12px;
+    border:1px solid transparent;border-radius:6px;
+    background:transparent;color:#aeb2b8;
+    font-size:12px;line-height:1;white-space:nowrap;
+    text-decoration:none;cursor:pointer;
+    transition:color .16s ease,background-color .16s ease,border-color .16s ease;
+}
+.nradio-oc-tab:hover{background:rgba(26,182,255,.08);color:#1ab6ff;border-color:rgba(26,182,255,.28);text-decoration:none;}
+.nradio-oc-tab.active{background:rgba(26,182,255,.14);color:#8bdcff;border-color:#1ab6ff;}
+.nradio-oc-frame{
+    display:block;width:100%;height:620px;min-height:480px;
+    border:0;background:transparent;overflow:visible;box-sizing:border-box;
+}
+@media(max-width:768px){
+    .nradio-oc-wrap{min-height:calc(100vh - 130px);}
+    .nradio-oc-tabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:6px 0 8px;scrollbar-width:none;}
+    .nradio-oc-tabs::-webkit-scrollbar{display:none;}
+    .nradio-oc-tab{flex:0 0 auto;padding:6px 10px;}
+    .nradio-oc-frame{height:480px;min-height:420px;}
+}
+@media(prefers-reduced-motion:reduce){.nradio-oc-tab{transition:none;}}
 </style>
 <div class="nradio-oc-wrap">
-    <div class="nradio-oc-tabs" id="nradio_oc_tabs">
-        <a class="nradio-oc-tab active" data-route="<%=url('admin/services/openclash/client')%>?nradio_embed=1">运行状态</a>
-        <a class="nradio-oc-tab" data-route="<%=url('admin/services/openclash/settings')%>?nradio_embed=1">插件设置</a>
-        <a class="nradio-oc-tab" data-route="<%=url('admin/services/openclash/config-overwrite')%>?nradio_embed=1">覆写设置</a>
-        <a class="nradio-oc-tab" data-route="<%=url('admin/services/openclash/config-subscribe')%>?nradio_embed=1">配置订阅</a>
-        <a class="nradio-oc-tab" data-route="<%=url('admin/services/openclash/config')%>?nradio_embed=1">配置管理</a>
-        <a class="nradio-oc-tab" data-route="<%=url('admin/services/openclash/log')%>?nradio_embed=1">运行日志</a>
+    <div class="nradio-oc-tabs" id="nradio_oc_tabs" role="tablist" aria-label="OpenClash 导航">
+        <a class="nradio-oc-tab active" role="tab" aria-selected="true" href="<%=url('admin/services/openclash/client')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/client')%>?nradio_embed=1">运行状态</a>
+        <a class="nradio-oc-tab" role="tab" aria-selected="false" href="<%=url('admin/services/openclash/settings')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/settings')%>?nradio_embed=1">插件设置</a>
+        <a class="nradio-oc-tab" role="tab" aria-selected="false" href="<%=url('admin/services/openclash/config-overwrite')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/config-overwrite')%>?nradio_embed=1">覆写设置</a>
+        <a class="nradio-oc-tab" role="tab" aria-selected="false" href="<%=url('admin/services/openclash/config-subscribe')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/config-subscribe')%>?nradio_embed=1">配置订阅</a>
+        <a class="nradio-oc-tab" role="tab" aria-selected="false" href="<%=url('admin/services/openclash/config')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/config')%>?nradio_embed=1">配置管理</a>
+        <a class="nradio-oc-tab" role="tab" aria-selected="false" href="<%=url('admin/services/openclash/log')%>?nradio_embed=1" data-route="<%=url('admin/services/openclash/log')%>?nradio_embed=1">运行日志</a>
     </div>
     <iframe class="nradio-oc-frame" id="nradio_oc_frame" src="<%=url('admin/services/openclash/client')%>?nradio_embed=1"></iframe>
 </div>
@@ -1350,6 +1374,12 @@ EOF
 (function(){
     var tabs = document.querySelectorAll('#nradio_oc_tabs .nradio-oc-tab');
     var frame = document.getElementById('nradio_oc_frame');
+    var layoutTimer = null;
+    var refreshTimer = null;
+    var resizeObserver = null;
+    var mutationObserver = null;
+    var attempts = 0;
+
     function getFrameDocument() {
         try {
             var d = frame.contentWindow && frame.contentWindow.document;
@@ -1361,6 +1391,7 @@ EOF
             return null;
         }
     }
+
     function cleanFrameChrome() {
         var d = getFrameDocument();
         if (!d)
@@ -1384,61 +1415,121 @@ EOF
         }
         catch(e) {}
     }
-    function resizeFrame() {
+
+    function getContentHeight() {
         var d = getFrameDocument();
         if (!d)
-            return;
+            return 0;
         try {
             var root = d.documentElement;
             var body = d.body;
-            var main = d.querySelector('main,.main,.main-content,#maincontent,#maincontainer');
             var heights = [
-                root ? root.scrollHeight : 0,
+                root ? root.offsetHeight : 0,
                 body ? body.scrollHeight : 0,
                 body ? body.offsetHeight : 0
             ];
-            if (main)
-                heights.push(main.scrollHeight + main.getBoundingClientRect().top + 24);
-            var next = Math.max.apply(Math, heights);
-            var min = window.matchMedia && window.matchMedia('(max-width: 768px)').matches ? 560 : 620;
-            if (next > 0)
-                frame.style.height = Math.max(min, Math.ceil(next + 20)) + 'px';
+            return Math.max.apply(Math, heights);
         }
-        catch(e) {}
+        catch(e) {
+            return 0;
+        }
     }
+
+    function resizeFrame() {
+        var next = getContentHeight();
+        var min = window.matchMedia && window.matchMedia('(max-width: 768px)').matches ? 420 : 480;
+        if (next > 0) {
+            frame.style.height = Math.max(min, Math.ceil(next + 20)) + 'px';
+        }
+    }
+
     function refreshFrameLayout() {
         cleanFrameChrome();
         resizeFrame();
     }
-    function watchFrameLayout() {
-        var tries = 0;
-        if (frame._nradioOcLayoutTimer)
-            window.clearInterval(frame._nradioOcLayoutTimer);
-        frame._nradioOcLayoutTimer = window.setInterval(function() {
-            refreshFrameLayout();
-            tries++;
-            if (tries >= 20)
-                window.clearInterval(frame._nradioOcLayoutTimer);
-        }, 500);
+
+    function scheduleRefresh() {
+        if (refreshTimer)
+            window.clearTimeout(refreshTimer);
+        refreshTimer = window.setTimeout(refreshFrameLayout, 80);
     }
+
+    function stopWatchers() {
+        if (layoutTimer) {
+            window.clearInterval(layoutTimer);
+            layoutTimer = null;
+        }
+        if (refreshTimer) {
+            window.clearTimeout(refreshTimer);
+            refreshTimer = null;
+        }
+        if (resizeObserver) {
+            resizeObserver.disconnect();
+            resizeObserver = null;
+        }
+        if (mutationObserver) {
+            mutationObserver.disconnect();
+            mutationObserver = null;
+        }
+        attempts = 0;
+    }
+
+    function watchFrameLayout() {
+        stopWatchers();
+        layoutTimer = window.setInterval(function() {
+            refreshFrameLayout();
+            attempts++;
+            if (attempts >= 24) {
+                window.clearInterval(layoutTimer);
+                layoutTimer = null;
+            }
+        }, 500);
+
+        try {
+            var d = getFrameDocument();
+            if (!d || !d.body)
+                return;
+
+            if (window.ResizeObserver) {
+                resizeObserver = new ResizeObserver(scheduleRefresh);
+                resizeObserver.observe(d.body);
+            }
+            if (window.MutationObserver) {
+                mutationObserver = new MutationObserver(scheduleRefresh);
+                mutationObserver.observe(d.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+            }
+        }
+        catch(e) {}
+    }
+
     for (var i = 0; i < tabs.length; i++) {
         tabs[i].onclick = function() {
             for (var j = 0; j < tabs.length; j++) tabs[j].className = tabs[j].className.replace(/\s*active/g, '');
+            for (var k = 0; k < tabs.length; k++) tabs[k].setAttribute('aria-selected', 'false');
             this.className += ' active';
+            this.setAttribute('aria-selected', 'true');
+            stopWatchers();
             frame.src = this.getAttribute('data-route');
             frame.style.height = '';
             return false;
         };
     }
+
     frame.onload = function() {
+        stopWatchers();
         refreshFrameLayout();
-        window.setTimeout(refreshFrameLayout, 120);
-        window.setTimeout(refreshFrameLayout, 500);
-        window.setTimeout(refreshFrameLayout, 1200);
         watchFrameLayout();
     };
-    if (window.addEventListener)
-        window.addEventListener('resize', refreshFrameLayout);
+
+    if (window.addEventListener) {
+        window.addEventListener('resize', scheduleRefresh);
+        window.addEventListener('beforeunload', stopWatchers);
+    }
 })();
 //]]></script>
 <%+footer%>
@@ -1795,7 +1886,7 @@ openclash_finalize_metadata() {
 }
 
 openclash_after_register() {
-    if [ "${INSTALL_OPENCLASH_SMART_CORE:-1}" = "1" ] && confirm_default_yes "是否继续下载 OpenClash smart 核心？"; then
+    if [ "${INSTALL_OPENCLASH_SMART_CORE:-0}" = "1" ] && confirm_default_yes "是否继续下载 OpenClash smart 核心？"; then
         install_openclash_smart_core || {
             log 'warn: OpenClash smart core download/install failed; LuCI package has been installed, please install core later from OpenClash page'
             return 0
