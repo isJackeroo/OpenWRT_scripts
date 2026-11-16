@@ -32,7 +32,7 @@ OpenWrt 常用安装/运维脚本集合。当前包含两个脚本：
 ### 使用方法
 
 ```sh
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/isJackeroo/OpenWRT_scripts/refs/heads/main/install_ddns_cloudflare.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/isJackeroo/OpenWRT_scripts/refs/heads/main/install_eMMC_Info.sh)"
 ```
 
 
@@ -60,7 +60,7 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/isJackeroo/OpenWRT_scri
 ### 使用方法
 
 ```sh
-bash -c "$(wget -qLO - https://raw.githubusercontent.com/isJackeroo/OpenWRT_scripts/refs/heads/main/install_eMMC_Info.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/isJackeroo/OpenWRT_scripts/refs/heads/main/install_eMMC_Info.sh)"
 ```
 
 安装完成后刷新浏览器，进入 LuCI → 系统 → eMMC Info，点击“运行检测”。
